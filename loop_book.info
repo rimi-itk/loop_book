@@ -1,0 +1,18 @@
+name = Loop Book
+description = Loop Book
+package = Loop
+core = 7.x
+
+dependencies[] = entityreference
+dependencies[] = ckeditor
+dependencies[] = text
+
+features[ckeditor_profile][] = loop_book
+features[features_api][] = api:2
+features[field_base][] = body
+features[field_base][] = field_loop_book_children
+features[field_instance][] = node-loop_book-body
+features[field_instance][] = node-loop_book-field_loop_book_children
+features[filter][] = loop_book
+features[node][] = loop_book
+features_exclude[dependencies][ckeditor] = ckeditor

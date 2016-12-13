@@ -1,0 +1,152 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Loop Book module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function loop_book_install() {
+  $type = node_type_set_defaults(array(
+            'type' => 'loop_book',
+            'name' => 'Loop book',
+            'description' => t('Loop book'),
+            'title_label' => t('Title'),
+            'custom' => TRUE,
+            'locked' => FALSE,
+            'base' => 'node_content',
+          ));
+  node_add_body_field($type);
+
+  node_type_save($type);
+
+  if (!field_info_field('field_loop_book_children'))
+  {
+    $field = array(
+      'translatable' => FALSE,
+      'entity_types' => array(),
+      'settings' => array(
+        'target_type' => 'node',
+        'handler' => 'base',
+        'handler_settings' => array(
+          'target_bundles' => array(
+            'loop_book' => 'loop_book',
+          ),
+          'sort' => array(
+            'type' => 'none',
+          ),
+        ),
+      ),
+      // 'storage' => array(
+      //   'type' => 'field_sql_storage',
+      //   'settings' => array(),
+      //   'module' => 'field_sql_storage',
+      //   'active' => '1',
+      //   'details' => array(
+      //     'sql' => array(
+      //       'FIELD_LOAD_CURRENT' => array(
+      //         'field_data_field_children' => array(
+      //           'target_id' => 'field_children_target_id',
+      //         ),
+      //       ),
+      //       'FIELD_LOAD_REVISION' => array(
+      //         'field_revision_field_children' => array(
+      //           'target_id' => 'field_children_target_id',
+      //         ),
+      //       ),
+      //     ),
+      //   ),
+      // ),
+      // 'foreign keys' => array(
+      //   'node' => array(
+      //     'table' => 'node',
+      //     'columns' => array(
+      //       'target_id' => 'nid',
+      //     ),
+      //   ),
+      // ),
+      // 'indexes' => array(
+      //   'target_id' => array('target_id'),
+      // ),
+      'field_name' => 'field_loop_book_children',
+      'type' => 'entityreference',
+      'module' => 'entityreference',
+      'active' => TRUE,
+      'locked' => FALSE,
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'deleted' => FALSE,
+      // 'columns' => array(
+      //   'target_id' => array(
+      //     'description' => 'The id of the target entity.',
+      //     'type' => 'int',
+      //     'unsigned' => true,
+      //     'not null' => true,
+      //   ),
+      // ),
+      'bundles' => array(
+        'node' => array(
+          'loop_book',
+        ),
+      ),
+    );
+
+    field_create_field($field);
+
+    $instance = array(
+      'label' => 'Children',
+      'widget' => array(
+        // 'weight' => '1',
+        'type' => 'entityreference_autocomplete',
+        'module' => 'entityreference',
+        'active' => TRUE,
+        'settings' => array(
+          'match_operator' => 'CONTAINS',
+          'size' => '60',
+          'path' => '',
+        ),
+      ),
+      // 'settings' => array(
+      //   'user_register_form' => false,
+      // ),
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'type' => 'entityreference_label',
+          'settings' => array(
+            'link' => TRUE,
+          ),
+          'module' => 'entityreference',
+          'weight' => 1,
+        ),
+        'teaser' => array(
+          'type' => 'hidden',
+          'label' => 'above',
+          'settings' => array(),
+          'weight' => 0,
+        ),
+      ),
+      'required' => FALSE,
+      'description' => 'The children of this node',
+      'default_value' => NULL,
+      // 'id' => '3',
+      // 'field_id' => '3',
+      'field_name' => 'field_loop_book_children',
+      'entity_type' => 'node',
+      'bundle' => 'loop_book',
+      'deleted' => FALSE,
+    );
+    field_create_instance($instance);
+  }
+
+  node_types_rebuild();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function loop_book_uninstall() {
+  // node_type_delete('loop_book');
+  // node_types_rebuild();
+}

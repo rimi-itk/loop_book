@@ -1,0 +1,205 @@
+<?php
+
+include_once 'loop_book.features.inc';
+
+include_once drupal_get_path('module', 'loop_book') . '/lib/src/Book.php';
+use Drupal\loop_book\Book;
+
+function loop_book_get_tree($node) {
+  $book = new Book();
+
+  $tree = $book->getTree($node->nid);
+
+  return $tree;
+}
+
+function loop_book_get_roots($node) {
+  $book = new Book();
+
+  $roots = $book->getRoots($node->nid);
+
+  return $roots;
+}
+
+// function loop_book_node_update($node) {
+//   $lang = 'und';
+//   // if ($node->original->field_children != $node->field_children)
+//   {
+//     $original_child_ids = loop_book_get_child_ids($node->original, $lang);
+//     $child_ids = loop_book_get_child_ids($node, $lang);
+
+//     // Remove this node as parent from original children
+//     $ids = array_diff($original_child_ids, $child_ids, array($node->nid));
+//     if (!empty($ids)) {
+//       $nodes = node_load_multiple($ids);
+//       foreach ($nodes as $n) {
+//         $parents = explode(',', $n->field_parents[$lang][0]['value']);
+//         $parents = array_diff($parents, array($node->nid));
+//         $parents = array_filter(array_unique($parents));
+//         sort($parents);
+//         $n->field_parents[$lang][0]['value'] = implode(',', $parents);
+//         echo '  ' . $n->nid . ': ' . $node->title . ' -> ' . $n->field_parents[$lang][0]['value'], PHP_EOL;
+//         node_save($n);
+//       }
+//     }
+
+//     // Add this node as parent to new children
+//     $ids = array_diff($child_ids, $original_child_ids, array($node->nid));
+//     if (!empty($ids)) {
+//       $nodes = node_load_multiple($ids);
+//       foreach ($nodes as $n) {
+//         $parents = explode(',', $n->field_parents[$lang][0]['value']);
+//         $parents = array_merge($parents, array($node->nid));
+//         $parents = array_filter(array_unique($parents));
+//         sort($parents);
+//         $n->field_parents[$lang][0]['value'] = implode(',', $parents);
+//         echo '  ' . $n->nid . ': ' . $node->title . ' -> ' . $n->field_parents[$lang][0]['value'], PHP_EOL;
+//         node_save($n);
+//       }
+//     }
+//   }
+// }
+
+// function loop_book_get_child_ids($node, $lang) {
+//   $ids = array();
+//   if (isset($node->field_children[$lang])) {
+//     foreach ($node->field_children[$lang] as $info) {
+//       $ids[] = $info['target_id'];
+//     }
+//   }
+
+//   return $ids;
+// }
+
+// function loop_book_update_parents() {
+//   $nodes = node_load_multiple(array(), array('type' => 'node'));
+//   foreach ($nodes as $node) {
+//     echo $node->nid . ': ' . $node->title, PHP_EOL;
+//     loop_book_node_update($node);
+//   }
+// }
+
+function loop_book_create_book($clear = FALSE) {
+  if ($clear) {
+    $nodes = node_load_multiple(array(), array('type' => 'loop_book'));
+    node_delete_multiple(array_keys($nodes));
+  }
+
+  // Book 1
+  //   Page 1
+  //     Page 1, 1
+  //   Page 2
+  // Book 2
+  //   Page 2
+  //   Page 3
+
+  $page1_1 = (object)array(
+    'title' => 'Page 1, 1',
+    'type' => 'loop_book',
+    'language' => LANGUAGE_NONE,
+    'status' => TRUE,
+  );
+  node_object_prepare($page1_1);
+  $page1_1 = node_submit($page1_1);
+  node_save($page1_1);
+
+  $page1 = (object)array(
+    'title' => 'Page 1',
+    'type' => 'loop_book',
+    'language' => LANGUAGE_NONE,
+    'status' => TRUE,
+    'field_loop_book_children' => array(
+      LANGUAGE_NONE => array(
+        array('target_id' => $page1_1->nid),
+      ),
+    ),
+  );
+  node_object_prepare($page1);
+  $page1 = node_submit($page1);
+  node_save($page1);
+
+  $page2 = (object)array(
+    'title' => 'Page 2',
+    'type' => 'loop_book',
+    'language' => LANGUAGE_NONE,
+    'status' => TRUE,
+    'body' => array(
+      LANGUAGE_NONE => array(
+        array(
+          'value' => 'This page is part of two books.',
+        ),
+      ),
+    ),
+  );
+  node_object_prepare($page2);
+  $page2 = node_submit($page2);
+  node_save($page2);
+
+  $page3 = (object)array(
+    'title' => 'Page 3',
+    'type' => 'loop_book',
+    'language' => LANGUAGE_NONE,
+    'status' => TRUE,
+    'body' => array(
+      LANGUAGE_NONE => array(
+        array(
+          'value' => 'This page 3.',
+        ),
+      ),
+    ),
+  );
+  node_object_prepare($page3);
+  $page3 = node_submit($page3);
+  node_save($page3);
+
+  $book1 = (object)array(
+    'title' => 'Book 1',
+    'type' => 'loop_book',
+    'language' => LANGUAGE_NONE,
+    'status' => TRUE,
+    'field_loop_book_children' => array(
+      LANGUAGE_NONE => array(
+        array('target_id' => $page1->nid),
+        array('target_id' => $page2->nid),
+      ),
+    ),
+    'body' => array(
+      LANGUAGE_NONE => array(
+        array(
+          'value' => 'This is the first book.',
+        ),
+      ),
+    ),
+  );
+  node_object_prepare($book1);
+  $book1 = node_submit($book1);
+  node_save($book1);
+
+  $book2 = (object)array(
+    'title' => 'Book 2',
+    'type' => 'loop_book',
+    'language' => LANGUAGE_NONE,
+    'status' => TRUE,
+    'field_loop_book_children' => array(
+      LANGUAGE_NONE => array(
+        array('target_id' => $page2->nid),
+        array('target_id' => $page3->nid),
+      ),
+    ),
+    'body' => array(
+      LANGUAGE_NONE => array(
+        array(
+          'value' => 'This is the second book.',
+        ),
+      ),
+    ),
+  );
+  node_object_prepare($book2);
+  $book2 = node_submit($book2);
+  node_save($book2);
+
+  $book = new Book();
+  $trees = $book->getTrees();
+
+  var_export(['trees' => $book->getTrees()]);
+}
