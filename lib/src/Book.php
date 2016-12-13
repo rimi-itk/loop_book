@@ -24,6 +24,10 @@ class Book {
   // node id ⟼ root id.
   protected $roots;
 
+  public static function getInstance() {
+    return new Book();
+  }
+
   public function getTrees(array $roots = null) {
     $data = $this->getData();
 
